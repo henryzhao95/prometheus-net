@@ -183,6 +183,9 @@ public sealed class MeterAdapter : IDisposable
 #if NET7_0_OR_GREATER
                 or ObservableUpDownCounter<TMeasurement>
 #endif
+#if NET9_0_OR_GREATER
+                or Gauge<TMeasurement>
+#endif
                 )
             {
                 var context = GetOrCreateGaugeContext(instrument, tags);

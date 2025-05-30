@@ -19,6 +19,10 @@ public class MeterAdapterBenchmarks
     private readonly SDM.Counter<double> _floatCounter;
     private readonly SDM.Histogram<long> _intHistogram;
     private readonly SDM.Histogram<double> _floatHistogram;
+#if NET9_0_OR_GREATER
+    private readonly SDM.Gauge<long> _intGauge;
+    private readonly SDM.Gauge<double> _floatGauge;
+#endif
 
     private readonly CollectorRegistry _registry;
 
@@ -32,6 +36,10 @@ public class MeterAdapterBenchmarks
         _floatCounter = _meter.CreateCounter<double>("float_counter", description: "This is a floating-point counter.");
         _intHistogram = _meter.CreateHistogram<long>("int_histogram", description: "This is an integer histogram.");
         _floatHistogram = _meter.CreateHistogram<double>("float_histogram", description: "This is a floating-point histogram.");
+#if NET9_0_OR_GREATER
+        _intGauge = _meter.CreateGauge<long>("int_gauge", description: "This is an integer gauge.");
+        _floatGauge = _meter.CreateGauge<double>("float_gauge", description: "This is a floating-point gauge.");
+#endif
 
         _registry = Metrics.NewCustomRegistry();
 
@@ -49,6 +57,10 @@ public class MeterAdapterBenchmarks
         _floatCounter.Add(1, _label);
         _intHistogram.Record(1, _label);
         _floatHistogram.Record(1, _label);
+#if NET9_0_OR_GREATER
+        _intGauge.Record(1, _label);
+        _floatGauge.Record(1, _label);
+#endif
     }
 
     [GlobalCleanup]
@@ -92,4 +104,24 @@ public class MeterAdapterBenchmarks
             _floatHistogram.Record(i, _label);
         }
     }
+
+#if NET9_0_OR_GREATER
+    [Benchmark]
+    public void GaugeInt()
+    {
+        for (var i = 0; i < MeasurementCount; i++)
+        {
+            _intGauge.Record(i, _label);
+        }
+    }
+
+    [Benchmark]
+    public void GaugeFloat()
+    {
+        for (var i = 0; i < MeasurementCount; i++)
+        {
+            _floatGauge.Record(i, _label);
+        }
+    }
+#endif
 }

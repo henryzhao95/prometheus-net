@@ -1,3 +1,5 @@
+* 8.3.0
+- Added Gauge support to MeterAdapter (.NET 9 specific feature).
 * 8.2.1
 - Fix occasional "Collection was modified" exception when serializing metrics. #464
 * 8.2.0

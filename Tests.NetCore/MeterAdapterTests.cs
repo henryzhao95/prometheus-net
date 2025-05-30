@@ -17,6 +17,7 @@ public sealed class MeterAdapterTests : IDisposable
     private readonly SDM.Meter _meter = new("test");
     private readonly SDM.Counter<long> _intCounter;
     private readonly SDM.Counter<double> _floatCounter;
+    private readonly SDM.Gauge<long> _intGauge;
     private readonly IDisposable _adapter;
 
     public MeterAdapterTests()
@@ -26,7 +27,9 @@ public sealed class MeterAdapterTests : IDisposable
 
         _intCounter = _meter.CreateCounter<long>("int_counter");
         _floatCounter = _meter.CreateCounter<double>("float_counter");
-
+#if NET9_0_OR_GREATER
+        _intGauge = _meter.CreateGauge<long>("int_gauge");
+#endif
         _registry = Metrics.NewCustomRegistry();
         _metrics = Metrics.WithCustomRegistry(_registry);
 
@@ -142,6 +145,21 @@ public sealed class MeterAdapterTests : IDisposable
         Assert.AreEqual(1002, GetValue("test_int_counter"));
         Assert.AreEqual(1, GetValue(registry2, "test_int_counter"));
     }
+
+#if NET9_0_OR_GREATER
+    [TestMethod]
+    public void GaugeInt()
+    {
+        _intGauge.Record(42);
+        Assert.AreEqual(42, GetValue("test_int_gauge"));
+
+        _intGauge.Record(10);
+        Assert.AreEqual(10.0, GetValue("test_int_gauge"));
+
+        _intGauge.Record(123, new KeyValuePair<string, object>("label1", "value1"));
+        Assert.AreEqual(123, GetValue("test_int_gauge", ("label1", "value1")));
+    }
+#endif
 
     public void Dispose()
     {
